@@ -11,11 +11,12 @@ https://YOUR-USERNAME.github.io/egypt-trip-2026/
 
 ## 📁 Files Included
 
-This is a **bare minimum** GitHub Pages setup with just 3 essential files:
+This GitHub Pages setup includes **4 essential files**:
 
 1. **index.html** - Main HTML file with all content
 2. **style.css** - Complete styling and responsive design
-3. **README.md** - This file (setup instructions)
+3. **app.js** - Interactive features with persistent storage
+4. **README.md** - This file (setup instructions)
 
 ## 🚀 How to Deploy to GitHub Pages
 
@@ -73,6 +74,7 @@ git push -u origin main
 
 ## ✨ Features
 
+### Core Features
 - **Fully Responsive** - Works on desktop, tablet, and mobile
 - **Modern Design** - Beautiful gradients and card layouts
 - **Easy Navigation** - Sticky navigation bar with smooth scrolling
@@ -83,6 +85,15 @@ git push -u origin main
   - Budget breakdown
   - Travel tips
   - Emergency contacts
+
+### 🎯 NEW: Interactive Itinerary Editor
+- **✏️ Edit Mode** - Toggle edit mode to modify your itinerary
+- **➕ Add Activities** - Add new activities to any day
+- **✏️ Edit Activities** - Modify existing activity details
+- **🗑️ Delete Activities** - Remove activities you don't need
+- **💾 Persistent Storage** - All changes saved automatically in browser
+- **📂 Import/Export** - Save and share your itinerary as JSON
+- **🔄 Reset Option** - Restore default itinerary anytime
 
 ## 🎨 Customization
 
@@ -122,11 +133,13 @@ The website automatically adjusts for different screen sizes:
 
 ## 🔧 Technical Details
 
-- **No JavaScript Required** - Pure HTML and CSS
+- **Vanilla JavaScript** - No frameworks or libraries needed
+- **localStorage API** - Persistent data storage in browser
 - **No Build Process** - Just upload and go
 - **No Dependencies** - Self-contained files
-- **Fast Loading** - Optimized CSS with minimal overhead
+- **Fast Loading** - Optimized code with minimal overhead
 - **SEO Friendly** - Proper HTML structure and meta tags
+- **Progressive Enhancement** - Works without JavaScript (fallback content)
 
 ## 📊 Browser Support
 
@@ -180,10 +193,38 @@ They can bookmark it and access all trip details anytime!
 
 ## 💡 Tips
 
+### Using the Interactive Editor
+
+1. **Edit Mode**: Click "✏️ Edit Itinerary" to enable editing
+2. **Add Activities**: Click "➕ Add Activity" button on any day
+3. **Edit/Delete**: Click the ✏️ or 🗑️ icons next to activities
+4. **Save Changes**: All changes are automatically saved to your browser
+5. **Export**: Download your customized itinerary as JSON
+6. **Import**: Upload a previously exported itinerary
+7. **Reset**: Restore the original itinerary if needed
+
+### Data Persistence
+
+- Changes are saved in your browser's localStorage
+- Data persists across browser sessions
+- Each browser/device has its own copy
+- Clear browser data will reset to default
+- Use Export/Import to sync across devices
+
+### Sharing Your Customized Itinerary
+
+1. **Export** your customized itinerary (JSON file)
+2. Share the JSON file with travel companions
+3. They can **Import** it on their device
+4. Everyone has the same customized plan!
+
+### Additional Tips
+
 - **Update regularly**: Keep the website updated with any itinerary changes
 - **Add photos**: After the trip, add photos to create a travel journal
 - **Make it private**: If needed, make the repository private (requires GitHub Pro for Pages)
 - **Version control**: Use git commits to track changes to your itinerary
+- **Backup**: Regularly export your itinerary to avoid data loss
 
 ## 📞 Need Help?
 
@@ -193,6 +234,26 @@ They can bookmark it and access all trip details anytime!
 
 ---
 
+## 🆕 What's New in This Version
+
+### Interactive Features (v2.0)
+- ✅ Editable itinerary with persistent storage
+- ✅ Add, edit, and delete activities
+- ✅ Import/Export functionality
+- ✅ Reset to default option
+- ✅ Automatic save to localStorage
+- ✅ Edit mode toggle with visual feedback
+
+### Browser Compatibility
+- Chrome/Edge: Full support
+- Firefox: Full support
+- Safari: Full support
+- Mobile browsers: Full support
+- localStorage required for persistence
+
+---
+
 **Created:** February 22, 2026  
+**Version:** 2.0 (Interactive Edition)  
 **Trip Dates:** November 24 - December 1, 2026  
 **Destination:** Egypt 🇪🇬

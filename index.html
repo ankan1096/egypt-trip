@@ -6,6 +6,7 @@
     <meta name="description" content="Egypt Trip Itinerary - November 24 - December 1, 2026">
     <title>Egypt Trip 2026 - Complete Itinerary</title>
     <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
 </head>
 <body>
     <header>
@@ -116,6 +117,23 @@
         <section id="itinerary" class="section">
             <h2>📅 Day-by-Day Itinerary</h2>
             
+            <div class="itinerary-controls">
+                <button id="toggle-edit-mode" class="btn-control">✏️ Edit Itinerary</button>
+                <button id="reset-itinerary" class="btn-control btn-secondary">🔄 Reset to Default</button>
+                <button id="export-itinerary" class="btn-control btn-secondary">💾 Export</button>
+                <button id="import-itinerary" class="btn-control btn-secondary">📂 Import</button>
+            </div>
+            
+            <div class="edit-mode-info" style="display: none;">
+                <p>📝 <strong>Edit Mode Active:</strong> Click on activities to edit or delete them. Click "Add Activity" to add new activities to any day.</p>
+            </div>
+            
+            <div id="itinerary-container">
+                <!-- Itinerary will be dynamically loaded here -->
+            </div>
+            
+            <!-- Fallback content if JavaScript is disabled -->
+            <noscript>
             <div class="day-card">
                 <div class="day-header">
                     <h3>Day 1: November 24 (Monday)</h3>
@@ -218,6 +236,7 @@
                     <p class="cost">Cost: USD 122 per person</p>
                 </div>
             </div>
+            </noscript>
         </section>
 
         <section id="budget" class="section">

@@ -507,6 +507,23 @@ footer p {
         align-items: center;
     }
 
+    .itinerary-controls {
+        flex-direction: column;
+    }
+
+    .btn-control {
+        width: 100%;
+    }
+
+    .day-content p {
+        padding-right: 0;
+    }
+
+    .btn-icon {
+        display: block;
+        margin: 5px 0;
+    }
+
     .section {
         padding: 20px;
     }
@@ -554,10 +571,131 @@ footer p {
     }
 }
 
+/* Itinerary Controls */
+.itinerary-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-control {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    box-shadow: var(--shadow);
+}
+
+.btn-control:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-control:active {
+    transform: translateY(0);
+}
+
+.btn-control.active {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.btn-control.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+}
+
+.btn-control.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+}
+
+/* Edit Mode Info */
+.edit-mode-info {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.edit-mode-info p {
+    margin: 0;
+    color: var(--text-dark);
+}
+
+/* Activity Edit Buttons */
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+}
+
+.btn-edit:hover {
+    background-color: rgba(33, 150, 243, 0.2);
+}
+
+.btn-delete:hover {
+    background-color: rgba(244, 67, 54, 0.2);
+}
+
+/* Add Activity Button */
+.btn-add-activity {
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add-activity:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add-activity:active {
+    transform: translateY(0);
+}
+
+/* Day Card Enhancements for Edit Mode */
+.day-card[data-day-id] {
+    position: relative;
+}
+
+.day-content p {
+    position: relative;
+    padding-right: 80px;
+}
+
 /* Print Styles */
 @media print {
-    nav {
-        display: none;
+    nav,
+    .itinerary-controls,
+    .edit-mode-info,
+    .btn-icon,
+    .btn-add-activity {
+        display: none !important;
     }
 
     .section {
