@@ -33,6 +33,7 @@
             <a href="#visa">Visa</a>
             <a href="#itinerary">Itinerary</a>
             <a href="#accommodations">Accommodations</a>
+            <a href="#todo">Todo List</a>
             <a href="#budget">Budget</a>
             <a href="#tips">Tips</a>
         </div>
@@ -169,6 +170,29 @@
             <div id="accommodations-container">
                 <div class="loading-message">
                     <p>⏳ Loading accommodations from cloud...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="todo" class="section">
+            <h2>✅ Todo List</h2>
+            
+            <div id="todo-update-notification" class="update-notification" style="display: none;">
+                ✨ Todo list updated by another user!
+            </div>
+            
+            <div class="itinerary-controls">
+                <button id="add-todo-btn" class="btn-control">➕ Add Todo Item</button>
+                <button id="clear-completed-btn" class="btn-control btn-secondary">🗑️ Clear Completed</button>
+            </div>
+            
+            <div class="sync-info-box">
+                <p>🔄 <strong>Real-time Sync:</strong> Todo items are synced across all users!</p>
+            </div>
+            
+            <div id="todo-container">
+                <div class="loading-message">
+                    <p>⏳ Loading todo items from cloud...</p>
                 </div>
             </div>
         </section>
