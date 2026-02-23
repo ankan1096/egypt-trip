@@ -89,8 +89,9 @@ class ItineraryManager {
     setupAccommodationsListener() {
         this.accommodationsRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                this.renderAccommodations(data);
+            // Always render, even if data is null or empty
+            this.renderAccommodations(data || []);
+            if (data && data.length > 0) {
                 this.showAccommodationUpdateNotification();
             }
         });
@@ -163,43 +164,9 @@ class ItineraryManager {
         return [];
     }
 
-    // Default accommodations data
+    // Default accommodations data - empty by default
     getDefaultAccommodations() {
-        return [
-            {
-                id: 1,
-                name: "Giza Pyramids Hotel",
-                location: "Cairo/Giza",
-                checkIn: "November 24",
-                checkOut: "November 26",
-                nights: 2,
-                costPerNight: 80,
-                totalCost: 160,
-                notes: "Near the Pyramids, includes breakfast"
-            },
-            {
-                id: 2,
-                name: "Nile Cruise Ship",
-                location: "Luxor to Aswan",
-                checkIn: "November 26",
-                checkOut: "November 29",
-                nights: 3,
-                costPerNight: 120,
-                totalCost: 360,
-                notes: "Full board included, all temple visits"
-            },
-            {
-                id: 3,
-                name: "Red Sea Resort",
-                location: "Hurghada",
-                checkIn: "November 29",
-                checkOut: "December 1",
-                nights: 2,
-                costPerNight: 90,
-                totalCost: 180,
-                notes: "Beach resort, all-inclusive option available"
-            }
-        ];
+        return [];
     }
 
     // Default itinerary data
@@ -844,10 +811,11 @@ class ItineraryManager {
 
         try {
             const snapshot = await this.accommodationsRef.once('value');
-            const accommodations = snapshot.val();
+            const accommodations = snapshot.val() || [];
             const filtered = accommodations.filter(a => a.id !== accomId);
             
-            await this.accommodationsRef.set(filtered);
+            // Set to empty array if no items left
+            await this.accommodationsRef.set(filtered.length > 0 ? filtered : []);
             this.logActivity(`${this.currentUser} deleted an accommodation`);
         } catch (error) {
             console.error('Error deleting accommodation:', error);
