@@ -201,8 +201,8 @@ class ItineraryManager {
             <p>
                 <strong>${activity.time}:</strong> ${activity.description}
                 ${this.editMode ? `
-                    <button class="btn-icon btn-edit" onclick="itineraryManager.editActivity(${day.id}, ${activity.id})" title="Edit activity">✏️</button>
-                    <button class="btn-icon btn-delete" onclick="itineraryManager.deleteActivity(${day.id}, ${activity.id})" title="Delete activity">🗑️</button>
+                    <button class="btn-icon btn-edit" data-day-id="${day.id}" data-activity-id="${activity.id}" title="Edit activity">✏️</button>
+                    <button class="btn-icon btn-delete" data-day-id="${day.id}" data-activity-id="${activity.id}" title="Delete activity">🗑️</button>
                 ` : ''}
             </p>
         `).join('');
@@ -216,7 +216,7 @@ class ItineraryManager {
                 <div class="day-content">
                     ${activitiesHtml}
                     ${this.editMode ? `
-                        <button class="btn-add-activity" onclick="itineraryManager.addActivity(${day.id})">
+                        <button class="btn-add-activity" data-day-id="${day.id}">
                             ➕ Add Activity
                         </button>
                     ` : ''}
@@ -241,6 +241,32 @@ class ItineraryManager {
         const exportBtn = document.getElementById('export-itinerary');
         if (exportBtn) {
             exportBtn.addEventListener('click', () => this.exportItinerary());
+        }
+
+        // Setup delegated event listeners for dynamically created buttons
+        const itineraryContainer = document.getElementById('itinerary-container');
+        if (itineraryContainer) {
+            itineraryContainer.addEventListener('click', (e) => {
+                // Handle Add Activity button
+                if (e.target.classList.contains('btn-add-activity')) {
+                    const dayId = parseInt(e.target.getAttribute('data-day-id'));
+                    this.addActivity(dayId);
+                }
+                
+                // Handle Edit button
+                if (e.target.classList.contains('btn-edit')) {
+                    const dayId = parseInt(e.target.getAttribute('data-day-id'));
+                    const activityId = parseInt(e.target.getAttribute('data-activity-id'));
+                    this.editActivity(dayId, activityId);
+                }
+                
+                // Handle Delete button
+                if (e.target.classList.contains('btn-delete')) {
+                    const dayId = parseInt(e.target.getAttribute('data-day-id'));
+                    const activityId = parseInt(e.target.getAttribute('data-activity-id'));
+                    this.deleteActivity(dayId, activityId);
+                }
+            });
         }
     }
 
