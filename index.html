@@ -3,16 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Egypt Trip Itinerary - November 24 - December 1, 2026">
-    <title>Egypt Trip 2026 - Complete Itinerary</title>
+    <meta name="description" content="Egypt Trip Itinerary - November 24 - December 1, 2026 - Real-time Multi-user Sync">
+    <title>Egypt Trip 2026 - Complete Itinerary (Multi-user)</title>
     <link rel="stylesheet" href="style.css">
-    <script src="app.js" defer></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- App Script -->
+    <script type="module" src="app-firebase.js"></script>
 </head>
 <body>
     <header>
         <div class="container">
             <h1>🇪🇬 Egypt Trip 2026</h1>
             <p class="subtitle">November 24 - December 1, 2026 | 4 People | 8 Days</p>
+            <p class="sync-status">
+                <span id="connection-status" class="status-connecting">⚪ Connecting...</span>
+                <span class="sync-info">Real-time sync enabled for all 4 members</span>
+            </p>
         </div>
     </header>
 
@@ -117,126 +127,26 @@
         <section id="itinerary" class="section">
             <h2>📅 Day-by-Day Itinerary</h2>
             
+            <div id="update-notification" class="update-notification" style="display: none;">
+                ✨ Itinerary updated by another user!
+            </div>
+            
             <div class="itinerary-controls">
                 <button id="toggle-edit-mode" class="btn-control">✏️ Edit Itinerary</button>
                 <button id="reset-itinerary" class="btn-control btn-secondary">🔄 Reset to Default</button>
                 <button id="export-itinerary" class="btn-control btn-secondary">💾 Export</button>
-                <button id="import-itinerary" class="btn-control btn-secondary">📂 Import</button>
             </div>
             
-            <div class="edit-mode-info" style="display: none;">
-                <p>📝 <strong>Edit Mode Active:</strong> Click on activities to edit or delete them. Click "Add Activity" to add new activities to any day.</p>
+            <div class="sync-info-box">
+                <p>🔄 <strong>Real-time Sync:</strong> Any changes made by you or your 3 travel companions will be instantly visible to everyone!</p>
             </div>
             
             <div id="itinerary-container">
-                <!-- Itinerary will be dynamically loaded here -->
-            </div>
-            
-            <!-- Fallback content if JavaScript is disabled -->
-            <noscript>
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 1: November 24 (Monday)</h3>
-                    <span class="location">Arrival in Cairo</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning/Afternoon:</strong> Both groups arrive at Cairo Airport, meet, transfer to hotel in Giza area</p>
-                    <p><strong>Evening:</strong> Welcome dinner at local Egyptian restaurant, rest</p>
-                    <p class="cost">Cost: USD 65 per person</p>
+                <!-- Itinerary will be dynamically loaded here from Firebase -->
+                <div class="loading-message">
+                    <p>⏳ Loading itinerary from cloud...</p>
                 </div>
             </div>
-
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 2: November 25 (Tuesday)</h3>
-                    <span class="location">Pyramids & Cairo</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning:</strong> Great Pyramids of Giza, Sphinx, optional camel ride</p>
-                    <p><strong>Afternoon:</strong> Egyptian Museum (Tutankhamun treasures, mummy rooms)</p>
-                    <p><strong>Evening:</strong> Khan El Khalili Bazaar, traditional dinner</p>
-                    <p class="cost">Cost: USD 97 per person</p>
-                </div>
-            </div>
-
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 3: November 26 (Wednesday)</h3>
-                    <span class="location">Cairo to Luxor</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning:</strong> Optional visit to Saqqara & Memphis, transfer to airport</p>
-                    <p><strong>Afternoon:</strong> Flight to Luxor, check-in to Nile Cruise ship</p>
-                    <p><strong>Evening:</strong> Visit illuminated Luxor Temple, dinner on cruise</p>
-                    <p class="cost">Cost: USD 120 per person</p>
-                </div>
-            </div>
-
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 4: November 27 (Thursday)</h3>
-                    <span class="location">Luxor West Bank</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning:</strong> Valley of the Kings, Temple of Hatshepsut, Colossi of Memnon</p>
-                    <p><strong>Afternoon:</strong> Cruise sails towards Edfu, relax on sun deck</p>
-                    <p><strong>Evening:</strong> Egyptian folklore show, overnight sailing</p>
-                    <p class="cost">Cost: USD 33 per person</p>
-                </div>
-            </div>
-
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 5: November 28 (Friday)</h3>
-                    <span class="location">Edfu & Kom Ombo</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning:</strong> Edfu Temple (best-preserved temple), horse carriage ride</p>
-                    <p><strong>Afternoon:</strong> Cruise to Kom Ombo, visit unique double temple</p>
-                    <p><strong>Evening:</strong> Sail to Aswan, dinner on cruise</p>
-                    <p class="cost">Cost: USD 23 per person</p>
-                </div>
-            </div>
-
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 6: November 29 (Saturday)</h3>
-                    <span class="location">Aswan to Hurghada</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning:</strong> Aswan High Dam, Philae Temple (boat ride to island)</p>
-                    <p><strong>Afternoon:</strong> Check out from cruise, optional Nubian Village visit</p>
-                    <p><strong>Evening:</strong> Flight to Hurghada, check-in to beach resort</p>
-                    <p class="cost">Cost: USD 180 per person</p>
-                </div>
-            </div>
-
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 7: November 30 (Sunday)</h3>
-                    <span class="location">Hurghada Beach Day</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning:</strong> Beach relaxation, optional snorkeling trip to Giftun Island</p>
-                    <p><strong>Afternoon:</strong> Water sports (scuba diving, parasailing, quad biking)</p>
-                    <p><strong>Evening:</strong> Sunset at beach, explore Hurghada Marina</p>
-                    <p class="cost">Cost: USD 70-90 per person</p>
-                </div>
-            </div>
-
-            <div class="day-card">
-                <div class="day-header">
-                    <h3>Day 8: December 1 (Monday)</h3>
-                    <span class="location">Departure</span>
-                </div>
-                <div class="day-content">
-                    <p><strong>Morning:</strong> Breakfast, check out, last-minute shopping</p>
-                    <p><strong>Afternoon:</strong> Flight to Cairo, connect to international flights</p>
-                    <p><strong>Evening:</strong> Return flights to Bangalore and Kolkata</p>
-                    <p class="cost">Cost: USD 122 per person</p>
-                </div>
-            </div>
-            </noscript>
         </section>
 
         <section id="budget" class="section">
@@ -433,6 +343,7 @@
             <p>Have an amazing trip to Egypt! 🇪🇬</p>
             <p class="small">November is one of the best times to visit Egypt with pleasant weather throughout the country.</p>
             <p class="small">Document Created: February 22, 2026 | Trip Dates: November 24 - December 1, 2026</p>
+            <p class="small">🔄 Real-time Multi-user Sync Enabled</p>
         </div>
     </footer>
 </body>

@@ -688,13 +688,111 @@ footer p {
     padding-right: 80px;
 }
 
+/* Firebase Sync Status */
+.sync-status {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#connection-status {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.status-connected {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #2e7d32;
+}
+
+.status-disconnected {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #c62828;
+}
+
+.status-connecting {
+    background-color: rgba(158, 158, 158, 0.2);
+    color: #616161;
+}
+
+.sync-info {
+    opacity: 0.9;
+}
+
+/* Update Notification */
+.update-notification {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Sync Info Box */
+.sync-info-box {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.sync-info-box p {
+    margin: 0;
+    color: var(--text-dark);
+}
+
+/* Loading Message */
+.loading-message {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+.loading-message p {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
 /* Print Styles */
 @media print {
     nav,
     .itinerary-controls,
     .edit-mode-info,
     .btn-icon,
-    .btn-add-activity {
+    .btn-add-activity,
+    .sync-status,
+    .update-notification,
+    .sync-info-box {
         display: none !important;
     }
 
