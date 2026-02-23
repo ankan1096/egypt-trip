@@ -157,50 +157,9 @@ class ItineraryManager {
         }
     }
 
-    // Default todos data
+    // Default todos data - empty by default
     getDefaultTodos() {
-        return [
-            {
-                id: 1,
-                text: "Apply for Egypt E-Visa",
-                status: "pending",
-                priority: "high",
-                createdBy: "System",
-                createdAt: Date.now()
-            },
-            {
-                id: 2,
-                text: "Book international flights",
-                status: "pending",
-                priority: "high",
-                createdBy: "System",
-                createdAt: Date.now()
-            },
-            {
-                id: 3,
-                text: "Purchase travel insurance",
-                status: "pending",
-                priority: "high",
-                createdBy: "System",
-                createdAt: Date.now()
-            },
-            {
-                id: 4,
-                text: "Exchange currency to USD",
-                status: "pending",
-                priority: "medium",
-                createdBy: "System",
-                createdAt: Date.now()
-            },
-            {
-                id: 5,
-                text: "Pack sunscreen and medications",
-                status: "pending",
-                priority: "medium",
-                createdBy: "System",
-                createdAt: Date.now()
-            }
-        ];
+        return [];
     }
 
     // Default accommodations data
@@ -355,28 +314,36 @@ class ItineraryManager {
             return a.status === 'pending' ? -1 : 1;
         });
 
-        const pendingTodos = sortedTodos.filter(t => t.status === 'pending');
-        const completedTodos = sortedTodos.filter(t => t.status === 'completed');
+        let html = `
+            <div class="todo-table-container">
+                <table class="todo-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Status</th>
+                            <th>Task</th>
+                            <th style="width: 100px;">Priority</th>
+                            <th style="width: 150px;">Created By</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
 
-        let html = '';
-        
-        if (pendingTodos.length > 0) {
-            html += '<div class="todo-section"><h3 class="todo-section-title">📋 Pending Tasks</h3>';
-            html += pendingTodos.map(todo => this.renderTodoCard(todo)).join('');
-            html += '</div>';
-        }
-        
-        if (completedTodos.length > 0) {
-            html += '<div class="todo-section"><h3 class="todo-section-title">✅ Completed Tasks</h3>';
-            html += completedTodos.map(todo => this.renderTodoCard(todo)).join('');
-            html += '</div>';
-        }
+        sortedTodos.forEach(todo => {
+            html += this.renderTodoRow(todo);
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
 
         container.innerHTML = html;
     }
 
-    // Render a single todo card
-    renderTodoCard(todo) {
+    // Render a single todo row
+    renderTodoRow(todo) {
         const priorityColors = {
             high: '#f44336',
             medium: '#ff9800',
@@ -387,29 +354,26 @@ class ItineraryManager {
         const isCompleted = todo.status === 'completed';
         
         return `
-            <div class="todo-card ${isCompleted ? 'completed' : ''}" data-todo-id="${todo.id}">
-                <div class="todo-checkbox">
+            <tr class="todo-row ${isCompleted ? 'completed-row' : ''}" data-todo-id="${todo.id}">
+                <td class="todo-checkbox-cell">
                     <input type="checkbox" 
                            id="todo-${todo.id}" 
                            ${isCompleted ? 'checked' : ''} 
                            data-todo-id="${todo.id}"
                            class="todo-checkbox-input">
-                    <label for="todo-${todo.id}"></label>
-                </div>
-                <div class="todo-content">
-                    <div class="todo-text ${isCompleted ? 'strikethrough' : ''}">${todo.text}</div>
-                    <div class="todo-meta">
-                        <span class="todo-priority" style="background-color: ${priorityColor}">
-                            ${todo.priority.toUpperCase()}
-                        </span>
-                        <span class="todo-creator">by ${todo.createdBy}</span>
-                    </div>
-                </div>
-                <div class="todo-actions">
+                </td>
+                <td class="todo-text-cell ${isCompleted ? 'strikethrough' : ''}">${todo.text}</td>
+                <td class="todo-priority-cell">
+                    <span class="todo-priority-badge" style="background-color: ${priorityColor}">
+                        ${todo.priority.toUpperCase()}
+                    </span>
+                </td>
+                <td class="todo-creator-cell">${todo.createdBy}</td>
+                <td class="todo-actions-cell">
                     <button class="btn-icon btn-edit-todo" data-todo-id="${todo.id}" title="Edit todo">✏️</button>
                     <button class="btn-icon btn-delete-todo" data-todo-id="${todo.id}" title="Delete todo">🗑️</button>
-                </div>
-            </div>
+                </td>
+            </tr>
         `;
     }
 
