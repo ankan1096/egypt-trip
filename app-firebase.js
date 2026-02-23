@@ -8,6 +8,7 @@ class ItineraryManager {
         this.db = null;
         this.itineraryRef = null;
         this.accommodationsRef = null;
+        this.todosRef = null;
         this.editMode = false;
         this.accommodationEditMode = false;
         this.currentUser = this.getUserIdentity();
@@ -35,6 +36,7 @@ class ItineraryManager {
             this.db = firebase.database();
             this.itineraryRef = this.db.ref('egyptTrip2026/itinerary');
             this.accommodationsRef = this.db.ref('egyptTrip2026/accommodations');
+            this.todosRef = this.db.ref('egyptTrip2026/todos');
             
             // Check if itinerary exists, if not create default
             const snapshot = await this.itineraryRef.once('value');
@@ -48,9 +50,16 @@ class ItineraryManager {
                 await this.accommodationsRef.set(this.getDefaultAccommodations());
             }
             
+            // Check if todos exist, if not create default
+            const todosSnapshot = await this.todosRef.once('value');
+            if (!todosSnapshot.exists()) {
+                await this.todosRef.set(this.getDefaultTodos());
+            }
+            
             // Listen for real-time updates
             this.setupRealtimeListener();
             this.setupAccommodationsListener();
+            this.setupTodosListener();
             
             // Setup UI
             this.setupEventListeners();
@@ -83,6 +92,17 @@ class ItineraryManager {
             if (data) {
                 this.renderAccommodations(data);
                 this.showAccommodationUpdateNotification();
+            }
+        });
+    }
+
+    // Setup real-time listener for todos
+    setupTodosListener() {
+        this.todosRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                this.renderTodos(data);
+                this.showTodoUpdateNotification();
             }
         });
     }
@@ -124,6 +144,63 @@ class ItineraryManager {
                 notification.style.display = 'none';
             }, 3000);
         }
+    }
+
+    // Show notification when todos update
+    showTodoUpdateNotification() {
+        const notification = document.getElementById('todo-update-notification');
+        if (notification) {
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    }
+
+    // Default todos data
+    getDefaultTodos() {
+        return [
+            {
+                id: 1,
+                text: "Apply for Egypt E-Visa",
+                status: "pending",
+                priority: "high",
+                createdBy: "System",
+                createdAt: Date.now()
+            },
+            {
+                id: 2,
+                text: "Book international flights",
+                status: "pending",
+                priority: "high",
+                createdBy: "System",
+                createdAt: Date.now()
+            },
+            {
+                id: 3,
+                text: "Purchase travel insurance",
+                status: "pending",
+                priority: "high",
+                createdBy: "System",
+                createdAt: Date.now()
+            },
+            {
+                id: 4,
+                text: "Exchange currency to USD",
+                status: "pending",
+                priority: "medium",
+                createdBy: "System",
+                createdAt: Date.now()
+            },
+            {
+                id: 5,
+                text: "Pack sunscreen and medications",
+                status: "pending",
+                priority: "medium",
+                createdBy: "System",
+                createdAt: Date.now()
+            }
+        ];
     }
 
     // Default accommodations data
@@ -258,6 +335,84 @@ class ItineraryManager {
         ];
     }
 
+    // Render todos
+    renderTodos(todos) {
+        const container = document.getElementById('todo-container');
+        if (!container) return;
+
+        if (!todos || todos.length === 0) {
+            container.innerHTML = '<p class="no-data">No todo items added yet. Click "Add Todo Item" to get started!</p>';
+            return;
+        }
+
+        // Sort todos: pending first, then completed
+        const sortedTodos = [...todos].sort((a, b) => {
+            if (a.status === b.status) {
+                // Within same status, sort by priority
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            }
+            return a.status === 'pending' ? -1 : 1;
+        });
+
+        const pendingTodos = sortedTodos.filter(t => t.status === 'pending');
+        const completedTodos = sortedTodos.filter(t => t.status === 'completed');
+
+        let html = '';
+        
+        if (pendingTodos.length > 0) {
+            html += '<div class="todo-section"><h3 class="todo-section-title">📋 Pending Tasks</h3>';
+            html += pendingTodos.map(todo => this.renderTodoCard(todo)).join('');
+            html += '</div>';
+        }
+        
+        if (completedTodos.length > 0) {
+            html += '<div class="todo-section"><h3 class="todo-section-title">✅ Completed Tasks</h3>';
+            html += completedTodos.map(todo => this.renderTodoCard(todo)).join('');
+            html += '</div>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    // Render a single todo card
+    renderTodoCard(todo) {
+        const priorityColors = {
+            high: '#f44336',
+            medium: '#ff9800',
+            low: '#4caf50'
+        };
+        
+        const priorityColor = priorityColors[todo.priority] || '#9e9e9e';
+        const isCompleted = todo.status === 'completed';
+        
+        return `
+            <div class="todo-card ${isCompleted ? 'completed' : ''}" data-todo-id="${todo.id}">
+                <div class="todo-checkbox">
+                    <input type="checkbox" 
+                           id="todo-${todo.id}" 
+                           ${isCompleted ? 'checked' : ''} 
+                           data-todo-id="${todo.id}"
+                           class="todo-checkbox-input">
+                    <label for="todo-${todo.id}"></label>
+                </div>
+                <div class="todo-content">
+                    <div class="todo-text ${isCompleted ? 'strikethrough' : ''}">${todo.text}</div>
+                    <div class="todo-meta">
+                        <span class="todo-priority" style="background-color: ${priorityColor}">
+                            ${todo.priority.toUpperCase()}
+                        </span>
+                        <span class="todo-creator">by ${todo.createdBy}</span>
+                    </div>
+                </div>
+                <div class="todo-actions">
+                    <button class="btn-icon btn-edit-todo" data-todo-id="${todo.id}" title="Edit todo">✏️</button>
+                    <button class="btn-icon btn-delete-todo" data-todo-id="${todo.id}" title="Delete todo">🗑️</button>
+                </div>
+            </div>
+        `;
+    }
+
     // Render accommodations
     renderAccommodations(accommodations) {
         const container = document.getElementById('accommodations-container');
@@ -366,6 +521,17 @@ class ItineraryManager {
             addAccomBtn.addEventListener('click', () => this.addAccommodation());
         }
 
+        // Todo controls
+        const addTodoBtn = document.getElementById('add-todo-btn');
+        if (addTodoBtn) {
+            addTodoBtn.addEventListener('click', () => this.addTodo());
+        }
+
+        const clearCompletedBtn = document.getElementById('clear-completed-btn');
+        if (clearCompletedBtn) {
+            clearCompletedBtn.addEventListener('click', () => this.clearCompletedTodos());
+        }
+
         // Setup delegated event listeners for dynamically created buttons
         const itineraryContainer = document.getElementById('itinerary-container');
         if (itineraryContainer) {
@@ -409,6 +575,32 @@ class ItineraryManager {
                 }
             });
         }
+
+        // Setup delegated event listeners for todo buttons
+        const todoContainer = document.getElementById('todo-container');
+        if (todoContainer) {
+            todoContainer.addEventListener('click', (e) => {
+                // Handle Edit Todo button
+                if (e.target.classList.contains('btn-edit-todo')) {
+                    const todoId = parseInt(e.target.getAttribute('data-todo-id'));
+                    this.editTodo(todoId);
+                }
+                
+                // Handle Delete Todo button
+                if (e.target.classList.contains('btn-delete-todo')) {
+                    const todoId = parseInt(e.target.getAttribute('data-todo-id'));
+                    this.deleteTodo(todoId);
+                }
+            });
+
+            // Handle checkbox changes
+            todoContainer.addEventListener('change', (e) => {
+                if (e.target.classList.contains('todo-checkbox-input')) {
+                    const todoId = parseInt(e.target.getAttribute('data-todo-id'));
+                    this.toggleTodoStatus(todoId);
+                }
+            });
+        }
     }
 
     // Toggle edit mode
@@ -448,6 +640,135 @@ class ItineraryManager {
         if (btn) {
             btn.textContent = this.accommodationEditMode ? '✓ Done Editing' : '✏️ Edit Accommodations';
             btn.classList.toggle('active', this.accommodationEditMode);
+        }
+    }
+
+    // Add new todo
+    async addTodo() {
+        const text = prompt('Enter todo item:');
+        if (!text || text.trim() === '') return;
+
+        const priority = prompt('Enter priority (high/medium/low):', 'medium');
+        if (!priority || !['high', 'medium', 'low'].includes(priority.toLowerCase())) {
+            alert('Invalid priority. Please use: high, medium, or low');
+            return;
+        }
+
+        try {
+            const snapshot = await this.todosRef.once('value');
+            const todos = snapshot.val() || [];
+            const newId = todos.length > 0 ? Math.max(...todos.map(t => t.id)) + 1 : 1;
+            
+            todos.push({
+                id: newId,
+                text: text.trim(),
+                status: 'pending',
+                priority: priority.toLowerCase(),
+                createdBy: this.currentUser,
+                createdAt: Date.now()
+            });
+            
+            await this.todosRef.set(todos);
+            this.logActivity(`${this.currentUser} added todo: ${text}`);
+        } catch (error) {
+            console.error('Error adding todo:', error);
+            alert('Error adding todo. Please try again.');
+        }
+    }
+
+    // Edit todo
+    async editTodo(todoId) {
+        try {
+            const snapshot = await this.todosRef.once('value');
+            const todos = snapshot.val();
+            const todoIndex = todos.findIndex(t => t.id === todoId);
+            
+            if (todoIndex !== -1) {
+                const todo = todos[todoIndex];
+                
+                const text = prompt('Edit todo text:', todo.text);
+                if (text === null) return;
+                if (text.trim() === '') {
+                    alert('Todo text cannot be empty');
+                    return;
+                }
+                
+                const priority = prompt('Edit priority (high/medium/low):', todo.priority);
+                if (priority === null) return;
+                if (!['high', 'medium', 'low'].includes(priority.toLowerCase())) {
+                    alert('Invalid priority. Please use: high, medium, or low');
+                    return;
+                }
+                
+                todos[todoIndex] = {
+                    ...todo,
+                    text: text.trim(),
+                    priority: priority.toLowerCase()
+                };
+                
+                await this.todosRef.set(todos);
+                this.logActivity(`${this.currentUser} edited todo: ${text}`);
+            }
+        } catch (error) {
+            console.error('Error editing todo:', error);
+            alert('Error editing todo. Please try again.');
+        }
+    }
+
+    // Delete todo
+    async deleteTodo(todoId) {
+        if (!confirm('Are you sure you want to delete this todo? This will affect all users.')) return;
+
+        try {
+            const snapshot = await this.todosRef.once('value');
+            const todos = snapshot.val();
+            const filtered = todos.filter(t => t.id !== todoId);
+            
+            await this.todosRef.set(filtered);
+            this.logActivity(`${this.currentUser} deleted a todo`);
+        } catch (error) {
+            console.error('Error deleting todo:', error);
+            alert('Error deleting todo. Please try again.');
+        }
+    }
+
+    // Toggle todo status
+    async toggleTodoStatus(todoId) {
+        try {
+            const snapshot = await this.todosRef.once('value');
+            const todos = snapshot.val();
+            const todoIndex = todos.findIndex(t => t.id === todoId);
+            
+            if (todoIndex !== -1) {
+                const todo = todos[todoIndex];
+                todos[todoIndex] = {
+                    ...todo,
+                    status: todo.status === 'pending' ? 'completed' : 'pending'
+                };
+                
+                await this.todosRef.set(todos);
+                this.logActivity(`${this.currentUser} ${todos[todoIndex].status === 'completed' ? 'completed' : 'uncompleted'} a todo`);
+            }
+        } catch (error) {
+            console.error('Error toggling todo status:', error);
+            alert('Error updating todo status. Please try again.');
+        }
+    }
+
+    // Clear completed todos
+    async clearCompletedTodos() {
+        if (!confirm('Are you sure you want to delete all completed todos? This will affect all users.')) return;
+
+        try {
+            const snapshot = await this.todosRef.once('value');
+            const todos = snapshot.val();
+            const filtered = todos.filter(t => t.status !== 'completed');
+            
+            await this.todosRef.set(filtered);
+            this.logActivity(`${this.currentUser} cleared completed todos`);
+        } catch (error) {
+            console.error('Error clearing completed todos:', error);
+            alert('Error clearing completed todos. Please try again.');
         }
     }
 
