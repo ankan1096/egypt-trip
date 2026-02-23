@@ -32,6 +32,7 @@
             <a href="#weather">Weather</a>
             <a href="#visa">Visa</a>
             <a href="#itinerary">Itinerary</a>
+            <a href="#accommodations">Accommodations</a>
             <a href="#budget">Budget</a>
             <a href="#tips">Tips</a>
         </div>
@@ -145,6 +146,29 @@
                 <!-- Itinerary will be dynamically loaded here from Firebase -->
                 <div class="loading-message">
                     <p>⏳ Loading itinerary from cloud...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="accommodations" class="section">
+            <h2>🏨 Accommodations</h2>
+            
+            <div id="accommodation-update-notification" class="update-notification" style="display: none;">
+                ✨ Accommodations updated by another user!
+            </div>
+            
+            <div class="itinerary-controls">
+                <button id="toggle-accommodation-edit" class="btn-control">✏️ Edit Accommodations</button>
+                <button id="add-accommodation-btn" class="btn-control btn-secondary" style="display: none;">➕ Add Accommodation</button>
+            </div>
+            
+            <div class="sync-info-box">
+                <p>🔄 <strong>Real-time Sync:</strong> Accommodation changes are synced across all users!</p>
+            </div>
+            
+            <div id="accommodations-container">
+                <div class="loading-message">
+                    <p>⏳ Loading accommodations from cloud...</p>
                 </div>
             </div>
         </section>

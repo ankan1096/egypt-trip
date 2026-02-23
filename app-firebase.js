@@ -7,7 +7,9 @@ class ItineraryManager {
     constructor() {
         this.db = null;
         this.itineraryRef = null;
+        this.accommodationsRef = null;
         this.editMode = false;
+        this.accommodationEditMode = false;
         this.currentUser = this.getUserIdentity();
         this.initFirebase();
     }
@@ -32,6 +34,7 @@ class ItineraryManager {
             
             this.db = firebase.database();
             this.itineraryRef = this.db.ref('egyptTrip2026/itinerary');
+            this.accommodationsRef = this.db.ref('egyptTrip2026/accommodations');
             
             // Check if itinerary exists, if not create default
             const snapshot = await this.itineraryRef.once('value');
@@ -39,8 +42,15 @@ class ItineraryManager {
                 await this.itineraryRef.set(this.getDefaultItinerary());
             }
             
+            // Check if accommodations exist, if not create default
+            const accomSnapshot = await this.accommodationsRef.once('value');
+            if (!accomSnapshot.exists()) {
+                await this.accommodationsRef.set(this.getDefaultAccommodations());
+            }
+            
             // Listen for real-time updates
             this.setupRealtimeListener();
+            this.setupAccommodationsListener();
             
             // Setup UI
             this.setupEventListeners();
@@ -62,6 +72,17 @@ class ItineraryManager {
             if (data) {
                 this.renderItinerary(data);
                 this.showUpdateNotification();
+            }
+        });
+    }
+
+    // Setup real-time listener for accommodations
+    setupAccommodationsListener() {
+        this.accommodationsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                this.renderAccommodations(data);
+                this.showAccommodationUpdateNotification();
             }
         });
     }
@@ -92,6 +113,56 @@ class ItineraryManager {
                 notification.style.display = 'none';
             }, 3000);
         }
+    }
+
+    // Show notification when accommodations update
+    showAccommodationUpdateNotification() {
+        const notification = document.getElementById('accommodation-update-notification');
+        if (notification && !this.accommodationEditMode) {
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    }
+
+    // Default accommodations data
+    getDefaultAccommodations() {
+        return [
+            {
+                id: 1,
+                name: "Giza Pyramids Hotel",
+                location: "Cairo/Giza",
+                checkIn: "November 24",
+                checkOut: "November 26",
+                nights: 2,
+                costPerNight: 80,
+                totalCost: 160,
+                notes: "Near the Pyramids, includes breakfast"
+            },
+            {
+                id: 2,
+                name: "Nile Cruise Ship",
+                location: "Luxor to Aswan",
+                checkIn: "November 26",
+                checkOut: "November 29",
+                nights: 3,
+                costPerNight: 120,
+                totalCost: 360,
+                notes: "Full board included, all temple visits"
+            },
+            {
+                id: 3,
+                name: "Red Sea Resort",
+                location: "Hurghada",
+                checkIn: "November 29",
+                checkOut: "December 1",
+                nights: 2,
+                costPerNight: 90,
+                totalCost: 180,
+                notes: "Beach resort, all-inclusive option available"
+            }
+        ];
     }
 
     // Default itinerary data
@@ -187,6 +258,47 @@ class ItineraryManager {
         ];
     }
 
+    // Render accommodations
+    renderAccommodations(accommodations) {
+        const container = document.getElementById('accommodations-container');
+        if (!container) return;
+
+        if (!accommodations || accommodations.length === 0) {
+            container.innerHTML = '<p class="no-data">No accommodations added yet.</p>';
+            return;
+        }
+
+        container.innerHTML = accommodations.map(accom => this.renderAccommodationCard(accom)).join('');
+    }
+
+    // Render a single accommodation card
+    renderAccommodationCard(accom) {
+        return `
+            <div class="accommodation-card" data-accommodation-id="${accom.id}">
+                <div class="accommodation-header">
+                    <h3>🏨 ${accom.name}</h3>
+                    <span class="accommodation-location">📍 ${accom.location}</span>
+                </div>
+                <div class="accommodation-content">
+                    <div class="accommodation-details">
+                        <p><strong>Check-in:</strong> ${accom.checkIn}</p>
+                        <p><strong>Check-out:</strong> ${accom.checkOut}</p>
+                        <p><strong>Nights:</strong> ${accom.nights}</p>
+                        <p><strong>Cost per night:</strong> USD ${accom.costPerNight}</p>
+                        <p class="accommodation-total"><strong>Total Cost:</strong> USD ${accom.totalCost}</p>
+                        ${accom.notes ? `<p class="accommodation-notes"><em>Notes: ${accom.notes}</em></p>` : ''}
+                    </div>
+                    ${this.accommodationEditMode ? `
+                        <div class="accommodation-actions">
+                            <button class="btn-icon btn-edit-accommodation" data-accommodation-id="${accom.id}" title="Edit accommodation">✏️ Edit</button>
+                            <button class="btn-icon btn-delete-accommodation" data-accommodation-id="${accom.id}" title="Delete accommodation">🗑️ Delete</button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
     // Render the entire itinerary
     renderItinerary(itinerary) {
         const container = document.getElementById('itinerary-container');
@@ -243,6 +355,17 @@ class ItineraryManager {
             exportBtn.addEventListener('click', () => this.exportItinerary());
         }
 
+        // Accommodation controls
+        const toggleAccomBtn = document.getElementById('toggle-accommodation-edit');
+        if (toggleAccomBtn) {
+            toggleAccomBtn.addEventListener('click', () => this.toggleAccommodationEditMode());
+        }
+
+        const addAccomBtn = document.getElementById('add-accommodation-btn');
+        if (addAccomBtn) {
+            addAccomBtn.addEventListener('click', () => this.addAccommodation());
+        }
+
         // Setup delegated event listeners for dynamically created buttons
         const itineraryContainer = document.getElementById('itinerary-container');
         if (itineraryContainer) {
@@ -268,6 +391,24 @@ class ItineraryManager {
                 }
             });
         }
+
+        // Setup delegated event listeners for accommodation buttons
+        const accommodationsContainer = document.getElementById('accommodations-container');
+        if (accommodationsContainer) {
+            accommodationsContainer.addEventListener('click', (e) => {
+                // Handle Edit Accommodation button
+                if (e.target.classList.contains('btn-edit-accommodation')) {
+                    const accomId = parseInt(e.target.getAttribute('data-accommodation-id'));
+                    this.editAccommodation(accomId);
+                }
+                
+                // Handle Delete Accommodation button
+                if (e.target.classList.contains('btn-delete-accommodation')) {
+                    const accomId = parseInt(e.target.getAttribute('data-accommodation-id'));
+                    this.deleteAccommodation(accomId);
+                }
+            });
+        }
     }
 
     // Toggle edit mode
@@ -285,6 +426,144 @@ class ItineraryManager {
         if (btn) {
             btn.textContent = this.editMode ? '✓ Done Editing' : '✏️ Edit Itinerary';
             btn.classList.toggle('active', this.editMode);
+        }
+    }
+
+    // Toggle accommodation edit mode
+    toggleAccommodationEditMode() {
+        this.accommodationEditMode = !this.accommodationEditMode;
+        const addBtn = document.getElementById('add-accommodation-btn');
+        if (addBtn) {
+            addBtn.style.display = this.accommodationEditMode ? 'inline-block' : 'none';
+        }
+        this.accommodationsRef.once('value').then(snapshot => {
+            this.renderAccommodations(snapshot.val());
+        });
+        this.updateAccommodationEditModeButton();
+    }
+
+    // Update accommodation edit mode button text
+    updateAccommodationEditModeButton() {
+        const btn = document.getElementById('toggle-accommodation-edit');
+        if (btn) {
+            btn.textContent = this.accommodationEditMode ? '✓ Done Editing' : '✏️ Edit Accommodations';
+            btn.classList.toggle('active', this.accommodationEditMode);
+        }
+    }
+
+    // Add new accommodation
+    async addAccommodation() {
+        const name = prompt('Enter accommodation name:');
+        if (!name) return;
+
+        const location = prompt('Enter location:');
+        if (!location) return;
+
+        const checkIn = prompt('Enter check-in date:');
+        if (!checkIn) return;
+
+        const checkOut = prompt('Enter check-out date:');
+        if (!checkOut) return;
+
+        const nights = parseInt(prompt('Enter number of nights:'));
+        if (isNaN(nights)) return;
+
+        const costPerNight = parseFloat(prompt('Enter cost per night (USD):'));
+        if (isNaN(costPerNight)) return;
+
+        const notes = prompt('Enter notes (optional):') || '';
+
+        try {
+            const snapshot = await this.accommodationsRef.once('value');
+            const accommodations = snapshot.val() || [];
+            const newId = accommodations.length > 0 ? Math.max(...accommodations.map(a => a.id)) + 1 : 1;
+            
+            accommodations.push({
+                id: newId,
+                name,
+                location,
+                checkIn,
+                checkOut,
+                nights,
+                costPerNight,
+                totalCost: nights * costPerNight,
+                notes
+            });
+            
+            await this.accommodationsRef.set(accommodations);
+            this.logActivity(`${this.currentUser} added accommodation: ${name}`);
+        } catch (error) {
+            console.error('Error adding accommodation:', error);
+            alert('Error adding accommodation. Please try again.');
+        }
+    }
+
+    // Edit accommodation
+    async editAccommodation(accomId) {
+        try {
+            const snapshot = await this.accommodationsRef.once('value');
+            const accommodations = snapshot.val();
+            const accomIndex = accommodations.findIndex(a => a.id === accomId);
+            
+            if (accomIndex !== -1) {
+                const accom = accommodations[accomIndex];
+                
+                const name = prompt('Edit name:', accom.name);
+                if (name === null) return;
+                
+                const location = prompt('Edit location:', accom.location);
+                if (location === null) return;
+                
+                const checkIn = prompt('Edit check-in date:', accom.checkIn);
+                if (checkIn === null) return;
+                
+                const checkOut = prompt('Edit check-out date:', accom.checkOut);
+                if (checkOut === null) return;
+                
+                const nights = parseInt(prompt('Edit number of nights:', accom.nights));
+                if (isNaN(nights)) return;
+                
+                const costPerNight = parseFloat(prompt('Edit cost per night (USD):', accom.costPerNight));
+                if (isNaN(costPerNight)) return;
+                
+                const notes = prompt('Edit notes:', accom.notes || '');
+                if (notes === null) return;
+                
+                accommodations[accomIndex] = {
+                    ...accom,
+                    name,
+                    location,
+                    checkIn,
+                    checkOut,
+                    nights,
+                    costPerNight,
+                    totalCost: nights * costPerNight,
+                    notes
+                };
+                
+                await this.accommodationsRef.set(accommodations);
+                this.logActivity(`${this.currentUser} edited accommodation: ${name}`);
+            }
+        } catch (error) {
+            console.error('Error editing accommodation:', error);
+            alert('Error editing accommodation. Please try again.');
+        }
+    }
+
+    // Delete accommodation
+    async deleteAccommodation(accomId) {
+        if (!confirm('Are you sure you want to delete this accommodation? This will affect all users.')) return;
+
+        try {
+            const snapshot = await this.accommodationsRef.once('value');
+            const accommodations = snapshot.val();
+            const filtered = accommodations.filter(a => a.id !== accomId);
+            
+            await this.accommodationsRef.set(filtered);
+            this.logActivity(`${this.currentUser} deleted an accommodation`);
+        } catch (error) {
+            console.error('Error deleting accommodation:', error);
+            alert('Error deleting accommodation. Please try again.');
         }
     }
 
@@ -306,7 +585,6 @@ class ItineraryManager {
                 const newId = Math.max(...day.activities.map(a => a.id), 0) + 1;
                 day.activities.push({ id: newId, time, description });
                 
-                // Update Firebase
                 await this.itineraryRef.set(itinerary);
                 this.logActivity(`${this.currentUser} added activity to ${day.day}`);
             }
@@ -339,7 +617,6 @@ class ItineraryManager {
                     activity.time = newTime;
                     activity.description = newDescription;
                     
-                    // Update Firebase
                     await this.itineraryRef.set(itinerary);
                     this.logActivity(`${this.currentUser} edited activity in ${day.day}`);
                 }
@@ -363,7 +640,6 @@ class ItineraryManager {
                 const day = itinerary[dayIndex];
                 day.activities = day.activities.filter(a => a.id !== activityId);
                 
-                // Update Firebase
                 await this.itineraryRef.set(itinerary);
                 this.logActivity(`${this.currentUser} deleted activity from ${day.day}`);
             }
