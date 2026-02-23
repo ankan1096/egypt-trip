@@ -100,8 +100,9 @@ class ItineraryManager {
     setupTodosListener() {
         this.todosRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                this.renderTodos(data);
+            // Always render, even if data is null or empty
+            this.renderTodos(data || []);
+            if (data && data.length > 0) {
                 this.showTodoUpdateNotification();
             }
         });
@@ -685,10 +686,11 @@ class ItineraryManager {
 
         try {
             const snapshot = await this.todosRef.once('value');
-            const todos = snapshot.val();
+            const todos = snapshot.val() || [];
             const filtered = todos.filter(t => t.id !== todoId);
             
-            await this.todosRef.set(filtered);
+            // Set to empty array if no items left, Firebase will handle it properly
+            await this.todosRef.set(filtered.length > 0 ? filtered : []);
             this.logActivity(`${this.currentUser} deleted a todo`);
         } catch (error) {
             console.error('Error deleting todo:', error);
@@ -725,10 +727,11 @@ class ItineraryManager {
 
         try {
             const snapshot = await this.todosRef.once('value');
-            const todos = snapshot.val();
+            const todos = snapshot.val() || [];
             const filtered = todos.filter(t => t.status !== 'completed');
             
-            await this.todosRef.set(filtered);
+            // Set to empty array if no items left
+            await this.todosRef.set(filtered.length > 0 ? filtered : []);
             this.logActivity(`${this.currentUser} cleared completed todos`);
         } catch (error) {
             console.error('Error clearing completed todos:', error);
